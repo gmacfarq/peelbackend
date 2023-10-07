@@ -10,7 +10,7 @@ const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 const usersRoutes = require("./routes/users");
-const produceRoutes = require("./routes/jobs");
+const produceRoutes = require("./routes/produce");
 
 const morgan = require("morgan");
 

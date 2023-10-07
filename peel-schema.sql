@@ -1,6 +1,5 @@
 CREATE TABLE users (
-  user_id SERIAL PRIMARY KEY,
-  username VARCHAR(255) NOT NULL UNIQUE,
+  username VARCHAR(255) PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE
     CHECK (position('@' IN email) > 1),
   first_name TEXT NOT NULL,
@@ -8,7 +7,8 @@ CREATE TABLE users (
   company_name TEXT,
   password TEXT NOT NULL,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-  is_grower BOOLEAN NOT NULL
+  is_grower BOOLEAN,
+  profile_pic VARCHAR(255)
 );
 
 -- Produce table
@@ -23,8 +23,8 @@ CREATE TABLE requests (
   request_id SERIAL PRIMARY KEY,
   produce_id INT
     REFERENCES produce (produce_id),
-  user_id INT
-    REFERENCES users (user_id),
+  username VARCHAR(255)
+    REFERENCES users (username),
   quantity_lbs DECIMAL(10, 2) NOT NULL
     CHECK (quantity_lbs > 0),
   price DECIMAL(10, 2) NOT NULL
@@ -71,7 +71,7 @@ CREATE TABLE media (
 CREATE TABLE transactions (
   transaction_id INT PRIMARY KEY,
   buyer_id INT NOT NULL
-    REFERENCES users (user_id),
+    REFERENCES users (username),
   produce_id INT NOT NULL
     REFERENCES produce (produce_id),
   quantity INT NOT NULL,
@@ -83,9 +83,9 @@ CREATE TABLE transactions (
 CREATE TABLE conversations (
   conversation_id INT PRIMARY KEY,
   user1_id INT NOT NULL
-    REFERENCES users (user_id),
+    REFERENCES users (username),
   user2_id INT NOT NULL
-    REFERENCES users (user_id)
+    REFERENCES users (username)
 );
 
 -- Messages table (related to Conversations)
@@ -94,7 +94,7 @@ CREATE TABLE messages (
   conversation_id INT NOT NULL
     REFERENCES conversations (conversation_id),
   sender_id INT NOT NULL
-    REFERENCES users (user_id),
+    REFERENCES users (username),
   content TEXT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
 );
@@ -102,8 +102,8 @@ CREATE TABLE messages (
 -- Addresses or Locations table
 CREATE TABLE addresses (
   address_id INT PRIMARY KEY,
-  user_id INT NOT NULL
-    REFERENCES users (user_id),
+  username VARCHAR(255) NOT NULL
+    REFERENCES users (username),
   street_address VARCHAR(255) NOT NULL,
   city VARCHAR(255) NOT NULL,
   state VARCHAR(50) NOT NULL,
@@ -114,8 +114,8 @@ CREATE TABLE addresses (
 -- Favorites or Wishlists table
 CREATE TABLE favorites (
   favorite_id INT PRIMARY KEY,
-  user_id INT NOT NULL
-    REFERENCES users (user_id),
+  username VARCHAR(255) NOT NULL
+    REFERENCES users (username),
   produce_id INT NOT NULL
     REFERENCES produce (produce_id),
 );
@@ -123,8 +123,8 @@ CREATE TABLE favorites (
 -- Notifications table
 CREATE TABLE notifications (
   notification_id INT PRIMARY KEY,
-  user_id INT NOT NULL
-    REFERENCES users (user_id),
+  username VARCHAR(255) NOT NULL
+    REFERENCES users (username),
   message TEXT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
   is_read BOOLEAN NOT NULL,
@@ -133,8 +133,8 @@ CREATE TABLE notifications (
 -- Payment and Transactions History table
 CREATE TABLE payment_history (
   payment_id INT PRIMARY KEY,
-  user_id INT NOT NULL
-    REFERENCES users (user_id),
+  username VARCHAR(255) NOT NULL
+    REFERENCES users (username),
   amount DECIMAL(10, 2) NOT NULL,
   payment_date TIMESTAMP NOT NULL,
   payment_method VARCHAR(255) NOT NULL,
@@ -144,17 +144,16 @@ CREATE TABLE payment_history (
 CREATE TABLE admin_actions (
   admin_action_id INT PRIMARY KEY,
   admin_id INT NOT NULL
-    REFERENCES users (user_id),
+    REFERENCES users (username),
   action_type VARCHAR(255) NOT NULL,
-  target_user_id INT
-    REFERENCES users (user_id),
+  target_username VARCHAR(255)
+    REFERENCES users (username),
   timestamp TIMESTAMP NOT NULL,
 );
 
--- Settings and
-  Preferences table
+-- Settings and Preferences table
 CREATE TABLE user_settings (
-  user_id INT PRIMARY KEY,
+  username VARCHAR(255) PRIMARY KEY,
   setting_name VARCHAR(255) NOT NULL,
   setting_value VARCHAR(255) NOT NULL,
 );
@@ -169,8 +168,8 @@ CREATE TABLE static_content (
 -- Analytics and Logs table
 CREATE TABLE analytics_logs (
   log_id INT PRIMARY KEY,
-  user_id INT
-    REFERENCES users (user_id),
+  username VARCHAR(255)
+    REFERENCES users (username),
   log_type VARCHAR(255) NOT NULL,
   log_data TEXT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
