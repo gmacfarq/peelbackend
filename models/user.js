@@ -134,6 +134,52 @@ class User {
     return result.rows;
   }
 
+  /** Find all Buyers.
+   *
+   * Returns [{ username, first_name, last_name, email, is_admin }, ...]
+   **/
+
+  static async findBuyers() {
+    const result = await db.query(`
+        SELECT username,
+               first_name AS "firstName",
+               last_name  AS "lastName",
+               company_name AS "companyName",
+               email,
+               is_grower AS "isGrower",
+               profile_pic AS "profilePic",
+               is_admin   AS "isAdmin"
+        FROM users
+        WHERE is_grower = false
+        ORDER BY username`,
+    );
+
+    return result.rows;
+  }
+
+  /** Find all Growers.
+   *
+   * Returns [{ username, first_name, last_name, email, is_admin }, ...]
+   **/
+
+  static async findGrowers() {
+    const result = await db.query(`
+        SELECT username,
+               first_name AS "firstName",
+               last_name  AS "lastName",
+               company_name AS "companyName",
+               email,
+               is_grower AS "isGrower",
+               profile_pic AS "profilePic",
+               is_admin   AS "isAdmin"
+        FROM users
+        WHERE is_grower = true
+        ORDER BY username`,
+    );
+
+    return result.rows;
+  }
+
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
@@ -160,13 +206,13 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
-    //SOMETHING LIKE THIS FOR REQUESTS
-    // const userApplicationsRes = await db.query(`
-    //     SELECT a.job_id
-    //     FROM applications AS a
-    //     WHERE a.username = $1`, [username]);
 
-    // user.applications = userApplicationsRes.rows.map(a => a.job_id);
+    const userRequests = await db.query(`
+        SELECT r.request_id
+        FROM requests AS r
+        WHERE r.username = $1`, [username]);
+
+    user.requests = userRequests.rows.map(r => r.request_id);
     return user;
   }
 
@@ -243,12 +289,11 @@ class User {
   /** Make a request for produce **/
 
   static async requestProduce(
-    {username,
-    produceId,
-    quantityLbs,
-    pricePerLb,
-    requestDate}
-    ) {
+    { username,
+      produceId,
+      quantityLbs,
+      pricePerLb,
+      requestDate }) {
     const preCheck = await db.query(`
         SELECT produce_id
         FROM produce
@@ -265,21 +310,29 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
-    await db.query(`
+    const request = await db.query(`
         INSERT INTO requests(
           produce_id,
           username,
           quantity_lbs,
           price,
           request_date)
-        VALUES ($1, $2, $3, $4, $5)`, [
-          produceId,
-          username,
-          quantityLbs,
-          pricePerLb,
-          requestDate
-        ],);
+        VALUES ($1, $2, $3, $4, $5),
+        RETURNING
+          produce_id AS "produceId",
+          quantity_lbs AS "quantityLbs",
+          price as "pricePerLb",
+          request_date AS "requestDate"`, [
+      produceId,
+      username,
+      quantityLbs,
+      pricePerLb,
+      requestDate
+    ],
+    );
+    return request;
   }
+
 }
 
 module.exports = User;

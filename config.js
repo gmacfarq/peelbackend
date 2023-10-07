@@ -13,7 +13,7 @@ const PORT = +process.env.PORT || 3001;
 function getDatabaseUri() {
   return (process.env.NODE_ENV === "test")
       ? process.env.DATABASE_URL_TEST
-      : process.env.DATABASE_URL || "peel";
+      : process.env.DATABASE_URL || "postgresql:///peel";
 }
 
 // Speed up bcrypt during tests, since the algorithm safety isn't being tested

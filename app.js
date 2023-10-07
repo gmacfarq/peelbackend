@@ -10,19 +10,13 @@ const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 const usersRoutes = require("./routes/users");
-const produceRoutes = require("./routes/produce");
+//const produceRoutes = require("./routes/produce");
 
 const morgan = require("morgan");
 
 const app = express();
 
-// add cors when we have a website
-// app.use(
-//   cors({
-//     origin: "https://peel-app.herokuapp.com/",
-//   })
-// )
-
+app.use(cors());
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(authenticateJWT);
@@ -30,7 +24,7 @@ app.use(authenticateJWT);
 //routes
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
-app.use("/produce", produceRoutes);
+//app.use("/produce", produceRoutes);
 
 
 /** Handle 404 errors -- this matches everything */
