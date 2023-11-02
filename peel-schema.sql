@@ -1,20 +1,25 @@
+-- users table
 CREATE TABLE users (
   username VARCHAR(255) PRIMARY KEY,
-  email VARCHAR(255) NOT NULL UNIQUE
-    CHECK (position('@' IN email) > 1),
+  password TEXT NOT NULL,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE
+    CHECK (position('@' IN email) > 1),
   company_name TEXT,
-  password TEXT NOT NULL,
-  is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  company_description TEXT,
+  profile_pic VARCHAR(255),
+  address_id INT
+    REFERENCES addresses (address_id),
   is_grower BOOLEAN,
-  profile_pic VARCHAR(255)
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- Produce table
 CREATE TABLE produce (
   produce_id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
+  image_url VARCHAR(255),
   description TEXT
 );
 
@@ -32,29 +37,35 @@ CREATE TABLE requests (
   request_date DATE
 );
 
--- Categories or Tags table
-CREATE TABLE categories (
-  category_id INT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL
+-- Offers table (Many-to-Many relationship between Produce and Users)
+CREATE TABLE offers (
+  offer_id SERIAL PRIMARY KEY,
+  produce_id INT
+    REFERENCES produce (produce_id),
+  username VARCHAR(255)
+    REFERENCES users (username),
+  quantity_lbs DECIMAL(10, 2) NOT NULL
+    CHECK (quantity_lbs > 0),
+  price DECIMAL(10, 2) NOT NULL
+    CHECK (price > 0),
+  sell_by_date DATE
 );
 
--- Produce Categories table (Many-to-Many relationship between Produce and Categories)
-CREATE TABLE produce_categories (
-  produce_id INT NOT NULL
-    REFERENCES produce (produce_id),
-  category_id INT NOT NULL
-    REFERENCES categories (category_id),
-  PRIMARY KEY (produce_id, category_id)
-);
+--NON MVP
+-- -- Categories or Tags table
+-- CREATE TABLE categories (
+--   category_id INT PRIMARY KEY,
+--   name VARCHAR(255) NOT NULL
+-- );
 
--- Images or Media table
-CREATE TABLE media (
-  media_id INT PRIMARY KEY,
-  produce_id INT NOT NULL
-    REFERENCES produce (produce_id),
-  media_type VARCHAR(50) NOT NULL,
-  file_path VARCHAR(255) NOT NULL
-);
+-- -- Produce Categories table (Many-to-Many relationship between Produce and Categories)
+-- CREATE TABLE produce_categories (
+--   produce_id INT NOT NULL
+--     REFERENCES produce (produce_id),
+--   category_id INT NOT NULL
+--     REFERENCES categories (category_id),
+--   PRIMARY KEY (produce_id, category_id)
+-- );
 
 -- Transactions or Orders table
 CREATE TABLE transactions (
@@ -63,72 +74,72 @@ CREATE TABLE transactions (
     REFERENCES users (username),
   produce_id INT NOT NULL
     REFERENCES produce (produce_id),
-  quantity INT NOT NULL,
+  quantity_lbs DECIMAL(10, 2) NOT NULL,
   total_amount DECIMAL(10, 2) NOT NULL,
   status VARCHAR(50) NOT NULL
 );
 
--- Reviews and Ratings table
-CREATE TABLE reviews (
-  review_id INT PRIMARY KEY,
-  transaction_id INT NOT NULL
-    REFERENCES transactions (transaction_id),
-  produce_id INT NOT NULL
-    REFERENCES produce (produce_id),
-  rating INT NOT NULL,
-  comment TEXT
-);
+-- NON MVP
+-- -- Reviews and Ratings table
+-- CREATE TABLE reviews (
+--   review_id INT PRIMARY KEY,
+--   transaction_id INT NOT NULL
+--     REFERENCES transactions (transaction_id),
+--   produce_id INT NOT NULL
+--     REFERENCES produce (produce_id),
+--   rating INT NOT NULL,
+--   comment TEXT
+-- );
 
--- Conversations table
-CREATE TABLE conversations (
-  conversation_id INT PRIMARY KEY,
-  user1_id VARCHAR(255) NOT NULL
-    REFERENCES users (username),
-  user2_id VARCHAR(255) NOT NULL
-    REFERENCES users (username)
-);
+-- -- Conversations table
+-- CREATE TABLE conversations (
+--   conversation_id INT PRIMARY KEY,
+--   user1_id VARCHAR(255) NOT NULL
+--     REFERENCES users (username),
+--   user2_id VARCHAR(255) NOT NULL
+--     REFERENCES users (username)
+-- );
 
--- Messages table (related to Conversations)
-CREATE TABLE messages (
-  message_id INT PRIMARY KEY,
-  conversation_id INT NOT NULL
-    REFERENCES conversations (conversation_id),
-  sender_id VARCHAR(255) NOT NULL
-    REFERENCES users (username),
-  content TEXT NOT NULL,
-  timestamp TIMESTAMP NOT NULL
-);
+-- -- Messages table (related to Conversations)
+-- CREATE TABLE messages (
+--   message_id INT PRIMARY KEY,
+--   conversation_id INT NOT NULL
+--     REFERENCES conversations (conversation_id),
+--   sender_id VARCHAR(255) NOT NULL
+--     REFERENCES users (username),
+--   content TEXT NOT NULL,
+--   timestamp TIMESTAMP NOT NULL
+-- );
 
 -- Addresses or Locations table
 CREATE TABLE addresses (
   address_id INT PRIMARY KEY,
-  username VARCHAR(255) NOT NULL
-    REFERENCES users (username),
   street_address VARCHAR(255) NOT NULL,
   city VARCHAR(255) NOT NULL,
   state VARCHAR(50) NOT NULL,
   postal_code VARCHAR(20) NOT NULL
-  --country VARCHAR(100) NOT NULL
+  country VARCHAR(100) NOT NULL
 );
 
--- Favorites or Wishlists table
-CREATE TABLE favorites (
-  favorite_id INT PRIMARY KEY,
-  username VARCHAR(255) NOT NULL
-    REFERENCES users (username),
-  produce_id INT NOT NULL
-    REFERENCES produce (produce_id)
-);
+-- NON MVP
+-- -- Favorites or Wishlists table
+-- CREATE TABLE favorites (
+--   favorite_id INT PRIMARY KEY,
+--   username VARCHAR(255) NOT NULL
+--     REFERENCES users (username),
+--   produce_id INT NOT NULL
+--     REFERENCES produce (produce_id)
+-- );
 
--- Notifications table
-CREATE TABLE notifications (
-  notification_id INT PRIMARY KEY,
-  username VARCHAR(255) NOT NULL
-    REFERENCES users (username),
-  message TEXT NOT NULL,
-  timestamp TIMESTAMP NOT NULL,
-  is_read BOOLEAN NOT NULL
-);
+-- -- Notifications table
+-- CREATE TABLE notifications (
+--   notification_id INT PRIMARY KEY,
+--   username VARCHAR(255) NOT NULL
+--     REFERENCES users (username),
+--   message TEXT NOT NULL,
+--   timestamp TIMESTAMP NOT NULL,
+--   is_read BOOLEAN NOT NULL
+-- );
 
 -- Payment and Transactions History table
 CREATE TABLE payment_history (
@@ -140,23 +151,24 @@ CREATE TABLE payment_history (
   payment_method VARCHAR(255) NOT NULL
 );
 
--- Admin or Moderation Actions table
-CREATE TABLE admin_actions (
-  admin_action_id INT PRIMARY KEY,
-  admin_id VARCHAR(255) NOT NULL
-    REFERENCES users (username),
-  action_type VARCHAR(255) NOT NULL,
-  target_username VARCHAR(255)
-    REFERENCES users (username),
-  timestamp TIMESTAMP NOT NULL
-);
+-- NON MVP
+-- -- Admin or Moderation Actions table
+-- CREATE TABLE admin_actions (
+--   admin_action_id INT PRIMARY KEY,
+--   admin_id VARCHAR(255) NOT NULL
+--     REFERENCES users (username),
+--   action_type VARCHAR(255) NOT NULL,
+--   target_username VARCHAR(255)
+--     REFERENCES users (username),
+--   timestamp TIMESTAMP NOT NULL
+-- );
 
--- Settings and Preferences table
-CREATE TABLE user_settings (
-  username VARCHAR(255) PRIMARY KEY,
-  setting_name VARCHAR(255) NOT NULL,
-  setting_value VARCHAR(255) NOT NULL
-);
+-- -- Settings and Preferences table
+-- CREATE TABLE user_settings (
+--   username VARCHAR(255) PRIMARY KEY,
+--   setting_name VARCHAR(255) NOT NULL,
+--   setting_value VARCHAR(255) NOT NULL
+-- );
 
 -- Static Content table
 CREATE TABLE static_content (
@@ -165,12 +177,13 @@ CREATE TABLE static_content (
   content_text TEXT NOT NULL
 );
 
--- Analytics and Logs table
-CREATE TABLE analytics_logs (
-  log_id INT PRIMARY KEY,
-  username VARCHAR(255)
-    REFERENCES users (username),
-  log_type VARCHAR(255) NOT NULL,
-  log_data TEXT NOT NULL,
-  timestamp TIMESTAMP NOT NULL
-);
+-- NON MVP
+-- -- Analytics and Logs table
+-- CREATE TABLE analytics_logs (
+--   log_id INT PRIMARY KEY,
+--   username VARCHAR(255)
+--     REFERENCES users (username),
+--   log_type VARCHAR(255) NOT NULL,
+--   log_data TEXT NOT NULL,
+--   timestamp TIMESTAMP NOT NULL
+-- );

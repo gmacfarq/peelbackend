@@ -52,7 +52,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  * Authorization required: admin
  **/
 
-router.get("/", async function (req, res, next) {
+router.get("/", ensureAdmin, async function (req, res, next) {
   const users = await User.findAll();
   return res.json({ users });
 });
@@ -140,6 +140,28 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * */
 
 router.post("/:username/request", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(
+    req.body,
+    produceRequestSchema,
+    { required: true },
+  );
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const request = await User.requestProduce(req.body);
+  return res.json({ requested: request });
+});
+
+/** POST /[username]/request  { state } => { application }
+ *
+ * Returns {"requested": requestId}
+ *
+ * Authorization required: admin or same-user-as-:username
+ * */
+
+router.post("/:username/selling", ensureCorrectUserOrAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
     produceRequestSchema,

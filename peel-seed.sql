@@ -1,1 +1,34 @@
--- seed the database with a buyer and a grower?
+-- seed the database with a buyer and a grower
+INSERT INTO users (username, password, first_name, last_name, email, company_name,company_description, profile_pic, is_grower, is_admin)
+VALUES ('testgrower',
+        '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
+        'Test',
+        'Grower',
+        'test@grower.com',
+        'testgrowercompany',
+        'testgrowerdescription',
+        'testgrowerpic',
+        TRUE,
+        FALSE),
+        ('testbuyer',
+        '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
+        'Test',
+        'Buyer',
+        'test@buyer.com',
+        'testbuyercompany',
+        'testbuyerdescription',
+        'testbuyerpic',
+        FALSE,
+        FALSE),
+       ('testadmin',
+        '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
+        'Test',
+        'Admin!',
+        'test@admin.com',
+        NULL,
+        NULL,
+        'testadminpic',
+        NULL,
+        TRUE);
+
+INSERT INTO produce (name, description)

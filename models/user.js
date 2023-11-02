@@ -25,7 +25,7 @@ class User {
     // try to find the user first
     const result = await db.query(`
         SELECT username,
-               password,
+               password
         FROM users
         WHERE username = $1`, [username],
     );
@@ -182,8 +182,10 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   * Returns { username, first_name, last_name, company_name, email,
+   *          is_grower, profile_pic, is_admin, offers/requests}
+   *   where offers/requests is
+   *        { offer/request_id, produce_id, username, quantity_lbs, price, date }
    *
    * Throws NotFoundError if user not found.
    **/
@@ -206,13 +208,22 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
+    if (user.isGrower) {
+      const userOffers = await db.query(`
+          SELECT o.offer_id
+          FROM offers AS o
+          WHERE o.username = $1`, [username]);
 
-    const userRequests = await db.query(`
-        SELECT r.request_id
-        FROM requests AS r
-        WHERE r.username = $1`, [username]);
+      user.offers = userOffers.rows.map(o => o.offer_id);
+    }
+    else if(!user.isGrower){
+      const userRequests = await db.query(`
+          SELECT r.request_id
+          FROM requests AS r
+          WHERE r.username = $1`, [username]);
 
-    user.requests = userRequests.rows.map(r => r.request_id);
+      user.requests = userRequests.rows.map(r => r.request_id);
+    }
     return user;
   }
 
@@ -293,7 +304,7 @@ class User {
       produceId,
       quantityLbs,
       pricePerLb,
-      requestDate }) {
+      sellByDate }) {
     const preCheck = await db.query(`
         SELECT produce_id
         FROM produce
@@ -316,21 +327,68 @@ class User {
           username,
           quantity_lbs,
           price,
-          request_date)
+          sell_by_date)
         VALUES ($1, $2, $3, $4, $5),
         RETURNING
           produce_id AS "produceId",
           quantity_lbs AS "quantityLbs",
           price as "pricePerLb",
-          request_date AS "requestDate"`, [
+          sell_by_date AS "sellByDate"`, [
       produceId,
       username,
       quantityLbs,
       pricePerLb,
-      requestDate
+      sellByDate
     ],
     );
     return request;
+  }
+
+  /** offer a type of produce **/
+
+  static async offerProduce(
+    { username,
+      produceId,
+      quantityLbs,
+      pricePerLb,
+      sellByDate }) {
+    const preCheck = await db.query(`
+        SELECT produce_id
+        FROM produce
+        WHERE produce_id = $1`, [produceId]);
+    const produce = preCheck.rows[0];
+
+    if (!produce) throw new NotFoundError(`No produce: ${produceId}`);
+
+    const preCheck2 = await db.query(`
+        SELECT username
+        FROM users
+        WHERE username = $1`, [username]);
+    const user = preCheck2.rows[0];
+
+    if (!user) throw new NotFoundError(`No user: ${username}`);
+
+    const offer = await db.query(`
+        INSERT INTO offers(
+          produce_id,
+          username,
+          quantity_lbs,
+          price,
+          sell_by_date)
+        VALUES ($1, $2, $3, $4, $5),
+        RETURNING
+          produce_id AS "produceId",
+          quantity_lbs AS "quantityLbs",
+          price as "pricePerLb",
+          sell_by_date AS "sellByDate"`, [
+      produceId,
+      username,
+      quantityLbs,
+      pricePerLb,
+      sellByDate
+    ],
+    );
+    return offer;
   }
 
 }
