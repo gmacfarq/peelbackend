@@ -22,5 +22,10 @@
       }
     },
     "additionalProperties": false,
-    "required": []
+    "required": [
+        "name",
+        "description",
+        "website",
+        "image"
+    ]
   }
