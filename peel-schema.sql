@@ -8,8 +8,8 @@ CREATE TABLE users (
     CHECK (position('@' IN email) > 1),
   business_id INT
     REFERENCES businesses (id),
-  profile_pic_url VARCHAR(255),
-  cover_pic_url VARCHAR(255),
+  profile_pic VARCHAR(255),
+  cover_pic VARCHAR(255),
   is_grower BOOLEAN,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
@@ -19,12 +19,21 @@ CREATE TABLE businesses (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   description TEXT,
-  website_url VARCHAR(255)
+  website VARCHAR(255)
 )
 -- Produce table (One-to-Many relationship between Businesses and Produce)
 CREATE TABLE produce (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
+  image_url VARCHAR(255)
+);
+
+-- Products table
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  website VARCHAR(255),
   image_url VARCHAR(255)
 );
 
@@ -81,6 +90,8 @@ CREATE TABLE transactions (
 -- Addresses or Locations table (One-to-Many relationship between Users and Addresses)
 CREATE TABLE addresses (
   id INT PRIMARY KEY,
+  username VARCHAR(255) NOT NULL
+    REFERENCES users (username),
   street_address VARCHAR(255) NOT NULL,
   city VARCHAR(255) NOT NULL,
   state VARCHAR(50) NOT NULL,
