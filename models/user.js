@@ -56,10 +56,10 @@ class User {
       password,
       firstName,
       lastName,
-      companyName,
       email,
       isGrower,
       profilePic,
+      coverPic,
       isAdmin
     }) {
     const duplicateCheck = await db.query(`
@@ -80,20 +80,20 @@ class User {
                  password,
                  first_name,
                  last_name,
-                 company_name,
                  email,
-                 is_grower,
                  profile_pic,
+                 cover_pic,
+                 is_grower,
                  is_admin)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 RETURNING
                     username,
                     first_name AS "firstName",
                     last_name AS "lastName",
-                    company_name AS "companyName",
                     email,
-                    is_grower AS "isGrower",
                     profile_pic AS "profilePic",
+                    cover_pic AS "coverPic",
+                    is_grower AS "isGrower",
                     is_admin AS "isAdmin"`, [
       username,
       hashedPassword,
@@ -101,8 +101,9 @@ class User {
       lastName,
       companyName,
       email,
-      isGrower,
       profilePic,
+      coverPic,
+      isGrower,
       isAdmin,
     ],
     );
@@ -137,7 +138,9 @@ class User {
   /** Find all Buyers.
    *
    * Returns [{ username, first_name, last_name, email, is_admin }, ...]
-   **/
+   *
+   * TODO: add filter search
+   * */
 
   static async findBuyers() {
     const result = await db.query(`
@@ -160,7 +163,9 @@ class User {
   /** Find all Growers.
    *
    * Returns [{ username, first_name, last_name, email, is_admin }, ...]
-   **/
+   *
+   * TODO: add filter search
+   * */
 
   static async findGrowers() {
     const result = await db.query(`
@@ -295,6 +300,37 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+
+  /** Join a business */
+
+  static async joinBusiness(username, businessId) {
+    const preCheck = await db.query(`
+        SELECT id
+        FROM businesses
+        WHERE id = $1`, [businessId]);
+    const business = preCheck.rows[0];
+
+    if (!business) throw new NotFoundError(`No business: ${businessId}`);
+
+    const preCheck2 = await db.query(`
+        SELECT username
+        FROM users
+        WHERE username = $1`, [username]);
+    const user = preCheck2.rows[0];
+
+    if (!user) throw new NotFoundError(`No user: ${username}`);
+
+    const join = await db.query(`
+        UPDATE users
+        SET business_id = $1
+        WHERE username = $2
+        RETURNING business_id AS "businessId"`, [
+      businessId,
+      username
+    ],
+    );
+    return join;
   }
 
   /** Make a request for produce **/

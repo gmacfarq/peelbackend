@@ -23,11 +23,6 @@
       "minLength": 1,
       "maxLength": 30
     },
-    "companyName": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 50
-    },
     "email": {
       "type": "string",
       "minLength": 6,
@@ -38,6 +33,14 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 100
+    },
+    "coverPic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "isGrower": {
+      "type": "boolean"
     },
     "isAdmin": {
       "type": "boolean"
@@ -50,6 +53,7 @@
     "lastName",
     "password",
     "email",
+    "isGrower",
     "isAdmin"
   ]
 }

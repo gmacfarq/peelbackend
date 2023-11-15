@@ -23,25 +23,24 @@
       "minLength": 1,
       "maxLength": 30
     },
-    "companyName": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 50
-    },
     "email": {
       "type": "string",
       "minLength": 6,
       "maxLength": 60,
       "format": "email"
     },
-    "isGrower": {
-      "type": "boolean"
-    },
     "profilePic": {
       "type": "string",
-      "format": "uri",
       "minLength": 1,
       "maxLength": 100
+    },
+    "coverPic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "isGrower": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false,

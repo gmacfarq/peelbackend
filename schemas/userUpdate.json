@@ -27,6 +27,11 @@
     "isGrower": {
       "type": "boolean"
     },
+    "coverPic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    },
     "profilePic": {
       "type": "string",
       "format": "uri",

@@ -11,7 +11,6 @@ const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
-const produceRequestSchema = require("../schemas/produceRequest.json");
 
 const router = express.Router();
 
@@ -23,7 +22,7 @@ const router = express.Router();
  * admin.
  *
  * This returns the newly created user and an authentication token for them:
- *  {user: { username, firstName, lastName, email, isGrower, profilePic, isAdmin }, token }
+ * {user: { username, firstName, lastName, email, isGrower, isAdmin }, token }
  *
  * Authorization required: admin
  **/
@@ -76,7 +75,7 @@ router.get("/growers", ensureAdmin, async function (req, res, next) {
  * Authorization required: admin
  **/
 
-router.get("/buyers", async function (req, res, next) {
+router.get("/buyers", ensureAdmin, async function (req, res, next) {
   const buyers = await User.findBuyers();
   return res.json({ buyers });
 });
@@ -84,8 +83,8 @@ router.get("/buyers", async function (req, res, next) {
 
 /** GET /[username] => { user }
  *
- * Returns { username, firstName, lastName, isAdmin, requests }
- *   where requests is [{ requestId, produceId, quantityInLbs, price, requqestDate}, ...]
+ * Returns { username, firstName, lastName, isAdmin, offers/requests }
+ *   where offers/requests is [{ requestId, produceId, quantityInLbs, price, requqestDate}, ...]
  *
  * Authorization required: admin or same user-as-:username
  **/
@@ -139,10 +138,10 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * Authorization required: admin or same-user-as-:username
  * */
 
-router.post("/:username/request", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.post("/:username/requests", ensureCorrectUserOrAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
-    produceRequestSchema,
+    requestSchema,
     { required: true },
   );
   if (!validator.valid) {
@@ -154,17 +153,17 @@ router.post("/:username/request", ensureCorrectUserOrAdmin, async function (req,
   return res.json({ requested: request });
 });
 
-/** POST /[username]/request  { state } => { application }
+/** POST /[username]/offer  { state } => { application }
  *
- * Returns {"requested": requestId}
+ * Returns {"offered": offerId}
  *
  * Authorization required: admin or same-user-as-:username
  * */
 
-router.post("/:username/selling", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.post("/:username/offers", ensureCorrectUserOrAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
-    produceRequestSchema,
+    offerSchema,
     { required: true },
   );
   if (!validator.valid) {
@@ -172,8 +171,32 @@ router.post("/:username/selling", ensureCorrectUserOrAdmin, async function (req,
     throw new BadRequestError(errs);
   }
 
-  const request = await User.requestProduce(req.body);
-  return res.json({ requested: request });
+  const offer = await User.offerProduce(req.body);
+  return res.json({ offered: offer });
+});
+
+module.exports = router;
+
+/** POST /[username]/orders  { state } => { application }
+ *
+ * Returns {"ordered": orderId}
+ *
+ * Authorization required: admin or same-user-as-:username
+ * */
+
+router.post("/:username/orders", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(
+    req.body,
+    orderSchema,
+    { required: true },
+  );
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const orders = await User.orderProduce(req.body);
+  return res.json({ ordered: orders });
 });
 
 module.exports = router;
