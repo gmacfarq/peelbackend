@@ -102,3 +102,4 @@ router.delete("/:id", ensureAdmin, async function (req, res, next) {
   return res.json({ deleted: req.params.id });
 });
 
+module.exports = router;

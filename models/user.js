@@ -21,17 +21,18 @@ class User {
    * Throws UnauthorizedError is user not found or wrong password.
    **/
 
-  static async authenticate(username, password) {
+  static async authenticate(email, password) {
     // try to find the user first
     const result = await db.query(`
-        SELECT username,
-               password
+        SELECT email,
+               username,
+               password,
+               is_admin AS "isAdmin"
         FROM users
-        WHERE username = $1`, [username],
+        WHERE email = $1`, [email],
     );
 
     const user = result.rows[0];
-
     if (user) {
       // compare hashed password to a new hash from password
       const isValid = await bcrypt.compare(password, user.password);
@@ -58,8 +59,6 @@ class User {
       lastName,
       email,
       isGrower,
-      profilePic,
-      coverPic,
       isAdmin
     }) {
     const duplicateCheck = await db.query(`
@@ -81,28 +80,21 @@ class User {
                  first_name,
                  last_name,
                  email,
-                 profile_pic,
-                 cover_pic,
                  is_grower,
                  is_admin)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING
                     username,
                     first_name AS "firstName",
                     last_name AS "lastName",
                     email,
-                    profile_pic AS "profilePic",
-                    cover_pic AS "coverPic",
                     is_grower AS "isGrower",
                     is_admin AS "isAdmin"`, [
       username,
       hashedPassword,
       firstName,
       lastName,
-      companyName,
       email,
-      profilePic,
-      coverPic,
       isGrower,
       isAdmin,
     ],
@@ -123,7 +115,6 @@ class User {
         SELECT username,
                first_name AS "firstName",
                last_name  AS "lastName",
-               company_name AS "companyName",
                email,
                is_grower AS "isGrower",
                profile_pic AS "profilePic",
@@ -147,7 +138,6 @@ class User {
         SELECT username,
                first_name AS "firstName",
                last_name  AS "lastName",
-               company_name AS "companyName",
                email,
                is_grower AS "isGrower",
                profile_pic AS "profilePic",
@@ -172,7 +162,6 @@ class User {
         SELECT username,
                first_name AS "firstName",
                last_name  AS "lastName",
-               company_name AS "companyName",
                email,
                is_grower AS "isGrower",
                profile_pic AS "profilePic",
@@ -200,7 +189,6 @@ class User {
         SELECT username,
                first_name AS "firstName",
                last_name  AS "lastName",
-               company_name AS "companyName",
                email,
                is_grower AS "isGrower",
                profile_pic AS "profilePic",
@@ -215,7 +203,7 @@ class User {
 
     if (user.isGrower) {
       const userOffers = await db.query(`
-          SELECT o.offer_id
+          SELECT o.id
           FROM offers AS o
           WHERE o.username = $1`, [username]);
 
@@ -223,7 +211,7 @@ class User {
     }
     else if(!user.isGrower){
       const userRequests = await db.query(`
-          SELECT r.request_id
+          SELECT r.id
           FROM requests AS r
           WHERE r.username = $1`, [username]);
 
@@ -273,8 +261,7 @@ class User {
         WHERE username = ${usernameVarIdx}
         RETURNING username,
             first_name AS "firstName",
-            last_name AS "lastName",
-            company_name AS "companyName",
+            last_name AS "lastName
             email,
             is_grower AS "isGrower",
             profile_pic AS "profilePic",

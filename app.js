@@ -10,10 +10,11 @@ const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 const usersRoutes = require("./routes/users");
-const produceRoutes = require("./routes/produce");
-const requestRoutes = require("./routes/requests");
-const offerRoutes = require("./routes/offers");
-const businessRoutes = require("./routes/businesses");
+const productRoutes = require("./routes/products");
+// const produceRoutes = require("./routes/produce");
+// const requestRoutes = require("./routes/requests");
+// const offerRoutes = require("./routes/offers");
+// const businessRoutes = require("./routes/businesses");
 
 const morgan = require("morgan");
 
@@ -27,10 +28,11 @@ app.use(authenticateJWT);
 //routes
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
-app.use("/produce", produceRoutes);
-app.use("/requests", requestRoutes);
-app.use("/offers", offerRoutes);
-app.use("/businesses", businessRoutes);
+app.use("/products", productRoutes);
+// app.use("/produce", produceRoutes);
+// app.use("/requests", requestRoutes);
+// app.use("/offers", offerRoutes);
+// app.use("/businesses", businessRoutes);
 
 
 /** Handle 404 errors -- this matches everything */
