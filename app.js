@@ -14,7 +14,7 @@ const productRoutes = require("./routes/products");
 // const produceRoutes = require("./routes/produce");
 // const requestRoutes = require("./routes/requests");
 // const offerRoutes = require("./routes/offers");
-// const businessRoutes = require("./routes/businesses");
+const businessRoutes = require("./routes/businesses");
 
 const morgan = require("morgan");
 
@@ -32,7 +32,7 @@ app.use("/products", productRoutes);
 // app.use("/produce", produceRoutes);
 // app.use("/requests", requestRoutes);
 // app.use("/offers", offerRoutes);
-// app.use("/businesses", businessRoutes);
+app.use("/businesses", businessRoutes);
 
 
 /** Handle 404 errors -- this matches everything */
