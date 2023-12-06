@@ -5,7 +5,7 @@ VALUES
         (2, 'Romolo & Remo', 'Roman-style artisanal tomato sauces bringing diverse and multicultural experiences together through unique and balanced flavor sets.', 'https://www.romoloremo.com/'),
         (3, 'J.R. Organics', 'J.R. Organics is a 4th generation organic farm. Choose from jams, flowers, and some of your favorite fruits and vegetables', 'https://www.jrorganicsfarm.com/'),
         (4, '1000 Tiny Farms', '1000 Tiny Farms working to cultivate a regional network of market gardens to explore the social, environmental, and economic impacts of a small patch of land and the sharing of resources between farmers.', 'https://www.1000tinyfarms.com'),
-        (5, 'Smit Farms', `A California family farm that grows organic fruits and sells at farmers' markets.`, 'https://www.smitfarms.com'),
+        (5, 'Smit Farms', 'A California family farm that grows organic fruits and sells at farmers markets.', 'https://www.smitfarms.com'),
         (6, 'Stehly Organic Farms', 'Stehly Organic Farms is a multi generation Family farm in Valley Center, CA founded in the 1920’s and reimagined by brothers Jerome and Noel Stehly in 2002.', 'https://www.stehlyfarmsorganics.com/'),
         (7, 'Wonderland Farm', NULL, NULL);
 
@@ -132,16 +132,20 @@ VALUES
         ('Tomato Pizza', 'Homemade tomato pizza', 'https://www.example.com/tomatopizza', 'https://www.example.com/tomatopizza.jpg'),
         ('Tomato Pasta', 'Homemade tomato pasta', 'https://www.example.com/tomatopasta', 'https://www.example.com/tomatopasta.jpg');
 
-INSERT INTO requests (id, produce_id, username, quantity, price, receive_by)
+INSERT INTO requests (id, produce_id, username, quantity, price, receive_by, quantity_filled, status)
 VALUES
-        (1, 1, 'loftycoffee', 350, 4.00, '2020-12-31'),
-        (2, 1, 'romoloremo', 70, 4.00, '2020-12-31');
+        (1, 1, 'loftycoffee', 350, 4.00, '2020-12-31', 220, 'Active'),
+        (2, 1, 'romoloremo', 70, 4.00, '2020-12-31', 70, 'Active'),
+        (3, 1, 'loftycoffee', 350, 4.00, '2020-12-24', 350, 'Completed');
 
-INSERT INTO orders (id, username, request_id, quantity)
+INSERT INTO orders (id, username, request_id, quantity, status)
 VALUES
-        (1, 'jrorganics', 1, 100),
-        (1, '1000tinyfarms', 1, 30),
-        (1, 'smitfarms', 1, 50),
-        (1, 'stehlyfarms', 2, 70),
-        (2, '1000tinyfarms', 2, 30),
-        (2, 'smitfarms', 2, 40);
+        (1, 'jrorganics', 3, 120, 'delivered'),
+        (2, '1000tinyfarms', 3, 50, 'delivered'),
+        (3, 'smitfarms', 3, 80, 'delivered'),
+        (4, 'stehlyfarms', 3, 100, 'delivered'),
+        (5, '1000tinyfarms', 2, 30, 'confirmed'),
+        (6, 'smitfarms', 2, 40, 'confirmed'),
+        (7, 'jrorganics', 1, 120, 'confirmed'),
+        (8, '1000tinyfarms', 1, 50, 'confirmed'),
+        (9, 'smitfarms', 1, 50, 'confirmed');

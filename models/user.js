@@ -211,11 +211,18 @@ class User {
     }
     else if(!user.isGrower){
       const userRequests = await db.query(`
-          SELECT r.id
-          FROM requests AS r
-          WHERE r.username = $1`, [username]);
-
-      user.requests = userRequests.rows.map(r => r.request_id);
+          SELECT id,
+                 produce_id AS "produceId",
+                 username,
+                 quantity,
+                 price,
+                 receive_by AS "recieveBy",
+                 quantity_filled AS "quantityFilled",
+                 status
+          FROM requests
+          WHERE username = $1`, [username]);
+      console.log(userRequests.rows);
+      user.requests = userRequests.rows;
     }
     return user;
   }

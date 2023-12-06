@@ -51,7 +51,8 @@ CREATE TABLE requests (
   quantity_filled DECIMAL(10, 2) NOT NULL,
   price DECIMAL(10, 2) NOT NULL
     CHECK (price > 0),
-  receive_by DATE
+  receive_by DATE,
+  status VARCHAR(50) NOT NULL
 );
 
 -- Offers table (Many-to-Many relationship between Produce and Users)
