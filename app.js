@@ -20,7 +20,11 @@ const morgan = require("morgan");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://peel-app-frontend-2fc4b8c41c2f.herokuapp.com'
+  })
+);
+
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(authenticateJWT);
